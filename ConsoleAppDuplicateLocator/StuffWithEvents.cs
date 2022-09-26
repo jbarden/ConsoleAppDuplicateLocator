@@ -28,12 +28,16 @@ namespace ConsoleAppDuplicateLocator
             {
                 for (int i = 0; i < fileGroup.Count(); i++)
                 {
-                    if (i % searchParameters.EventRaiseCounter == 0)
+                    if (fileGroup.ElementAt(i).Extension.Contains(".jpg", StringComparison.OrdinalIgnoreCase))
                     {
-                        RaiseEvent(new FileEventArgs($"Getting the file dimension details for {fileGroup.ElementAt(i).Name}..."));
+                        if (i % searchParameters.EventRaiseCounter == 0)
+                        {
+                            RaiseEvent(new FileEventArgs($"Getting the file dimension details for {fileGroup.ElementAt(i).Name}..."));
+                        }
+
+                        var fileWithDimensions = GetFileInfo(fileGroup.ElementAt(i));
+                        dupsWithDimensions.Add(fileWithDimensions);
                     }
-                    var fileWithDimensions = GetFileInfo(fileGroup.ElementAt(i));
-                    dupsWithDimensions.Add(fileWithDimensions);
                 }
             }
 
@@ -58,6 +62,7 @@ namespace ConsoleAppDuplicateLocator
                 {
                     RaiseEvent(new FileEventArgs($"Getting the file details for {file}..."));
                 }
+
                 fileList.Add(new FileInfo(file));
                 fileCounter++;
             }
@@ -82,10 +87,7 @@ namespace ConsoleAppDuplicateLocator
             return file;
         }
 
-        private static void RaiseEvent(FileEventArgs searchEventArgs)
-        {
-            // null was this but not valid as we're static here
+        private static void RaiseEvent(FileEventArgs searchEventArgs) =>
             FilesEventHandler?.Invoke(null, searchEventArgs);
-        }
     }
 }

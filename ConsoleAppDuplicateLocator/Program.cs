@@ -39,12 +39,14 @@ namespace ConsoleAppDuplicateLocator
                 {
                     Stuff.DoVeryImportantStuff();
                 }
+
                 if (response.Key == ConsoleKey.D2 || response.Key == ConsoleKey.NumPad2)
                 {
                     StuffWithEvents.FilesEventHandler += FilesService_SelectPotentialDuplicatesEventHandler;
                     StuffWithEvents.DoVeryImportantStuff(new SearchParameters(10, "c:\\temp", RecurseSubdirectories, "*.*"), new FileSystem());
                     StuffWithEvents.FilesEventHandler -= FilesService_SelectPotentialDuplicatesEventHandler;
                 }
+
                 stopwatch.Stop();
                 Console.WriteLine($"Total run time: {stopwatch.ElapsedMilliseconds} milliseconds");
 
@@ -52,6 +54,7 @@ namespace ConsoleAppDuplicateLocator
                 {
                     File.AppendAllText(@"c:\temp\stuff.txt", $"{DateTime.Now} - Total run time: {stopwatch.ElapsedMilliseconds}{Environment.NewLine}");
                 }
+
                 if (response.Key == ConsoleKey.D2 || response.Key == ConsoleKey.NumPad2)
                 {
                     File.AppendAllText(@"c:\temp\stuffWithEvents.txt", $"{DateTime.Now} Total run time: {stopwatch.ElapsedMilliseconds}{Environment.NewLine}");
