@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace ConsoleAppDuplicateLocator
 {
@@ -16,7 +17,7 @@ namespace ConsoleAppDuplicateLocator
             var fileList = new List<FileInfoJB>();
             RaiseEvent(new FileEventArgs("Getting the file details..."));
 
-            GetFileList(searchParameters)
+            GetFileList(searchParameters, fileSystem)
                 .ForEach(file => fileList.Add(GetFileInfo(file)));
 
             RaiseEvent(new FileEventArgs("Grouping the file details..."));
@@ -28,7 +29,7 @@ namespace ConsoleAppDuplicateLocator
             {
                 for (int i = 0; i < fileGroup.Count(); i++)
                 {
-                    if (fileGroup.ElementAt(i).Extension.Contains(".jpg", StringComparison.OrdinalIgnoreCase))
+                    if (fileGroup.ElementAt(i).IsImage)
                     {
                         if (i % searchParameters.EventRaiseCounter == 0)
                         {
@@ -42,7 +43,9 @@ namespace ConsoleAppDuplicateLocator
             }
 
             RaiseEvent(new FileEventArgs("Grouping the file details again - this time with dimensions for the duplicates..."));
-            var dupsBySizeAndDimensions = dupsWithDimensions.GroupBy(file => FileSize.Create(file.Size, file.Height, file.Width, file.ChecksumHash), new FileSizeEqualityComparer()).Where(files => files.Count() > 1);
+            var dupsBySizeAndDimensions = dupsWithDimensions
+                                            .GroupBy(file => FileSize.Create(file.Size, file.Height, file.Width, file.ChecksumHash), new FileSizeEqualityComparer())
+                                            .Where(files => files.Count() > 1);
 
             Console.WriteLine(new string('-', 40));
             Console.WriteLine($"files2 count: {fileList.Count}");
@@ -50,9 +53,9 @@ namespace ConsoleAppDuplicateLocator
             Console.WriteLine($"Duplicate by size and dimensions count: {dupsBySizeAndDimensions.Count()}");
         }
 
-        private static List<FileInfo> GetFileList(SearchParameters searchParameters)
+        private static List<FileInfo> GetFileList(SearchParameters searchParameters, IFileSystem fileSystem)
         {
-            var files = Directory.GetFiles(searchParameters.SearchFolder, searchParameters.SearchPattern, new EnumerationOptions { IgnoreInaccessible = true, MatchCasing = MatchCasing.CaseInsensitive, RecurseSubdirectories = searchParameters.RecurseSubdirectories });
+            var files = fileSystem.Directory.GetFiles(searchParameters.SearchFolder, searchParameters.SearchPattern, new EnumerationOptions { IgnoreInaccessible = true, MatchCasing = MatchCasing.CaseInsensitive, RecurseSubdirectories = searchParameters.RecurseSubdirectories });
             var fileList = new List<FileInfo>();
 
             var fileCounter = 1;

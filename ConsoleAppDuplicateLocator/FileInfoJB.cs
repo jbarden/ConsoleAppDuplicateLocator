@@ -1,4 +1,6 @@
-﻿namespace ConsoleAppDuplicateLocator
+﻿using System;
+
+namespace ConsoleAppDuplicateLocator
 {
     internal class FileInfoJB
     {
@@ -15,5 +17,9 @@
         public string ChecksumHash { get; set; } = string.Empty;
 
         public string Extension { get; set; } = string.Empty;
+
+        public bool IsImage => Extension.Contains(".jpg", StringComparison.OrdinalIgnoreCase)
+            || Extension.Contains(".bmp", StringComparison.OrdinalIgnoreCase)
+            || Extension.Contains(".png", StringComparison.OrdinalIgnoreCase);
     }
 }

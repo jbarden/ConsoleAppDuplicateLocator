@@ -14,23 +14,9 @@ namespace ConsoleAppDuplicateLocator
         /// <returns><c>true</c> if the files are deemed to be the same size, <c>false</c> otherwise.</returns>
         public bool Equals(FileSize? leftFileSize, FileSize? rightFileSize)
         {
-            if (rightFileSize == null && leftFileSize == null)
-            {
-                return true;
-            }
-
-            if (leftFileSize == null || rightFileSize == null)
-            {
-                return false;
-            }
-
-            if (leftFileSize.Height == rightFileSize.Height && leftFileSize.FileLength == rightFileSize.FileLength
-                                && leftFileSize.Width == rightFileSize.Width && leftFileSize.ChecksumValue == rightFileSize.ChecksumValue)
-            {
-                return true;
-            }
-
-            return false;
+            return (rightFileSize == null && leftFileSize == null)
+                || (leftFileSize != null && rightFileSize != null && leftFileSize.Height == rightFileSize.Height && leftFileSize.FileLength == rightFileSize.FileLength
+                && leftFileSize.Width == rightFileSize.Width && leftFileSize.ChecksumValue == rightFileSize.ChecksumValue);
         }
 
         /// <summary>
