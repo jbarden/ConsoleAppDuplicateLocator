@@ -16,45 +16,46 @@ internal static class StuffWithEvents
         var fileList = new List<FileInfoJB>();
         RaiseEvent(new FileEventArgs("Getting the file details..."));
 
-        GetFileList(searchParameters/*, fileSystem*/)
+        GetFileList(/*searchParameters, fileSystem*/)
             .ForEach(file => fileList.Add(GetFileInfo(file)));
 
         RaiseEvent(new FileEventArgs("Grouping the file details..."));
 
-        var dupsBySize = fileList.GroupBy(file => FileSize.Create(file.Size, file.Height, file.Width, file.ChecksumHash), new FileSizeEqualityComparer()).Where(files => files.Count() > 1);
+        var duplicatesBySize = fileList
+            .GroupBy(file => FileSize.Create(file.Size, file.Height, file.Width, file.ChecksumHash), new FileSizeEqualityComparer()).Where(files => files.Count() > 1)
+            .ToArray();
 
-        var dupsWithDimensions = new List<FileInfoJB>();
-        foreach (var fileGroup in dupsBySize)
+        var duplicatesWithDimensions = new List<FileInfoJB>();
+        foreach (var fileGroup in duplicatesBySize)
         {
             for (var i = 0; i < fileGroup.Count(); i++)
             {
-                if (fileGroup.ElementAt(i).IsImage)
+                if (!fileGroup.ElementAt(i).IsImage)
                 {
-                    if (i % searchParameters.EventRaiseCounter == 0)
-                    {
-                        RaiseEvent(new FileEventArgs($"Getting the file dimension details for {fileGroup.ElementAt(i).Name}..."));
-                    }
-
-                    var fileWithDimensions = GetFileInfo(fileGroup.ElementAt(i));
-                    dupsWithDimensions.Add(fileWithDimensions);
+                    continue;
                 }
+
+                RaiseEvent(new FileEventArgs($"Getting the file dimension details for {fileGroup.ElementAt(i).Name}..."));
+
+                var fileWithDimensions = GetFileInfo(fileGroup.ElementAt(i));
+                duplicatesWithDimensions.Add(fileWithDimensions);
             }
         }
 
         RaiseEvent(new FileEventArgs("Grouping the file details again - this time with dimensions for the duplicates..."));
-        var dupsBySizeAndDimensions = dupsWithDimensions
+        var duplicatesBySizeAndDimensions = duplicatesWithDimensions
                                         .GroupBy(file => FileSize.Create(file.Size, file.Height, file.Width, file.ChecksumHash), new FileSizeEqualityComparer())
                                         .Where(files => files.Count() > 1);
 
         Console.WriteLine(new string('-', 40));
         Console.WriteLine($"files2 count: {fileList.Count}");
-        Console.WriteLine($"Duplicate by size count: {dupsBySize.Count()}");
-        Console.WriteLine($"Duplicate by size and dimensions count: {dupsBySizeAndDimensions.Count()}");
+        Console.WriteLine($"Duplicate by size count: {duplicatesBySize.Count()}");
+        Console.WriteLine($"Duplicate by size and dimensions count: {duplicatesBySizeAndDimensions.Count()}");
     }
 
-    private static List<FileInfo> GetFileList(SearchParameters searchParameters)
+    private static List<FileInfo> GetFileList()
     {
-        //var files = fileSystem.Directory.GetFiles(searchParameters.SearchFolder, searchParameters.SearchPattern, new EnumerationOptions { IgnoreInaccessible = true, MatchCasing = MatchCasing.CaseInsensitive, RecurseSubdirectories = searchParameters.RecurseSubdirectories });
+        //var files = fileSystem.Directory.GetFiles(searchParameters.SearchFolder, searchParameters.SearchPattern, new EnumerationOptions { IgnoreInaccessible = true, MatchCasing = MatchCasing.CaseInsensitive, RecursiveSubDirectories = searchParameters.RecursiveSubDirectories });
         var fileList = new List<FileInfo>();
         var files = new List<string>
         {
@@ -93,16 +94,12 @@ internal static class StuffWithEvents
             @"c:\temp\New Folder - Copy\72B08573-1A16-44BE-9EA3-1A360E8D54D8.jpg",
             @"c:\temp\New Folder - Copy\96F1C3FB-F572-4A21-87C5-9ACCBC3BCED5.jpg",
         };
-        var fileCounter = 1;
+
         foreach (var file in files)
         {
-            if (fileCounter % searchParameters.EventRaiseCounter == 0)
-            {
-                RaiseEvent(new FileEventArgs($"Getting the file details for {file}..."));
-            }
+            RaiseEvent(new FileEventArgs($"Getting the file details for {file}..."));
 
             fileList.Add(new FileInfo(file));
-            fileCounter++;
         }
 
         return fileList;

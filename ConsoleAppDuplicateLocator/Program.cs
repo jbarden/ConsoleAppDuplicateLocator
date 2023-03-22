@@ -7,14 +7,14 @@ namespace ConsoleAppDuplicateLocator;
 
 public partial class Program
 {
-    private static readonly bool RecurseSubdirectories = true;
+    private static readonly bool RecursiveSubDirectories = true;
 
     private static void Main(string[] args)
     {
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         StuffWithEvents.FilesEventHandler += FilesService_SelectPotentialDuplicatesEventHandler;
-        var searchParameters = new SearchParameters(10, "c:\\temp", RecurseSubdirectories, "*.*");
+        var searchParameters = new SearchParameters("c:\\temp", RecursiveSubDirectories, "*.*");
         StuffWithEvents.DoVeryImportantStuff(searchParameters, new FileSystem());
         StuffWithEvents.FilesEventHandler -= FilesService_SelectPotentialDuplicatesEventHandler;
         stopwatch.Stop();
@@ -24,5 +24,6 @@ public partial class Program
         _ = Console.ReadKey();
     }
 
-    private static void FilesService_SelectPotentialDuplicatesEventHandler(object? sender, EventArgs eventArgs) => Console.WriteLine(((FileEventArgs)eventArgs).Message);
+    private static void FilesService_SelectPotentialDuplicatesEventHandler(object? sender, EventArgs eventArgs)
+        => Console.WriteLine(((FileEventArgs)eventArgs).Message);
 }

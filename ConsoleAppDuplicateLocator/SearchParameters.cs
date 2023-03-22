@@ -2,19 +2,16 @@
 
 internal record SearchParameters
 {
-    public SearchParameters(int eventRaiseCounter, string searchFolder, bool recurseSubdirectories, string searchPattern)
+    public SearchParameters(string searchFolder, bool recursiveSubDirectories, string searchPattern)
     {
-        EventRaiseCounter = eventRaiseCounter;
         SearchFolder = searchFolder;
-        RecurseSubdirectories = recurseSubdirectories;
+        RecursiveSubDirectories = recursiveSubDirectories;
         SearchPattern = searchPattern;
     }
-
-    public int EventRaiseCounter { get; }
 
     public string SearchFolder { get; }
 
     public string SearchPattern { get; }
 
-    public bool RecurseSubdirectories { get; }
+    public bool RecursiveSubDirectories { get; }
 }
