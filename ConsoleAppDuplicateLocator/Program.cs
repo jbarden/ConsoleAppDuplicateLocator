@@ -14,14 +14,13 @@ public partial class Program
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         StuffWithEvents.FilesEventHandler += FilesService_SelectPotentialDuplicatesEventHandler;
-        var searchParameters = new SearchParameters("c:\\temp", RecursiveSubDirectories, "*.*");
+        var searchParameters = new SearchParameters(args[0], RecursiveSubDirectories, "*.*");
         StuffWithEvents.DoVeryImportantStuff(searchParameters, new FileSystem());
         StuffWithEvents.FilesEventHandler -= FilesService_SelectPotentialDuplicatesEventHandler;
         stopwatch.Stop();
         Console.WriteLine($"Total run time: {stopwatch.ElapsedMilliseconds} milliseconds");
 
         File.AppendAllText(@"c:\temp\stuffWithEvents.txt", $"{DateTime.Now} Total run time: {stopwatch.ElapsedMilliseconds}{Environment.NewLine}");
-        _ = Console.ReadKey();
     }
 
     private static void FilesService_SelectPotentialDuplicatesEventHandler(object? sender, EventArgs eventArgs)
