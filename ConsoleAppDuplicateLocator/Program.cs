@@ -14,7 +14,7 @@ public partial class Program
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         StuffWithEvents.FilesEventHandler += FilesService_SelectPotentialDuplicatesEventHandler;
-        var searchParameters = new SearchParameters("F:\\LookAtNow\\f\\", RecursiveSubDirectories, "*.*");
+        var searchParameters = new SearchParameters(args[0], RecursiveSubDirectories, "*.*");
         StuffWithEvents.DoVeryImportantStuff(searchParameters, new FileSystem());
         StuffWithEvents.FilesEventHandler -= FilesService_SelectPotentialDuplicatesEventHandler;
         stopwatch.Stop();
