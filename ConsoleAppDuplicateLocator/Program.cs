@@ -7,9 +7,9 @@ namespace ConsoleAppDuplicateLocator;
 
 public partial class Program
 {
-    private static readonly bool RecursiveSubDirectories = true;
+    private const bool RecursiveSubDirectories = true;
 
-    private static void Main(string[] args)
+    private static void Main()
     {
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -18,9 +18,10 @@ public partial class Program
         StuffWithEvents.DoVeryImportantStuff(searchParameters, new FileSystem());
         StuffWithEvents.FilesEventHandler -= FilesService_SelectPotentialDuplicatesEventHandler;
         stopwatch.Stop();
-        Console.WriteLine($"Total run time: {stopwatch.ElapsedMilliseconds} milliseconds");
+        Console.WriteLine($"Total run time: {stopwatch.Elapsed.Minutes} minutes");
 
-        File.AppendAllText(@"c:\temp\stuffWithEvents.txt", $"{DateTime.Now} Total run time: {stopwatch.ElapsedMilliseconds}{Environment.NewLine}");
+        File.AppendAllText(@"c:\temp\dups.txt", $"{Environment.NewLine}{DateTime.Now} Total run time: {stopwatch.Elapsed.Minutes} minutes{Environment.NewLine}");
+        _ = Console.ReadKey();
     }
 
     private static void FilesService_SelectPotentialDuplicatesEventHandler(object? sender, EventArgs eventArgs)

@@ -17,6 +17,7 @@ internal class FileInfoJB
     public string ChecksumHash { get; set; } = string.Empty;
 
     public string Extension { get; set; } = string.Empty;
+    public bool IsNotImage => !IsImage;
 
     public bool IsImage => Extension.Contains(".jpg", StringComparison.OrdinalIgnoreCase)
                            || Extension.Contains(".bmp", StringComparison.OrdinalIgnoreCase)
