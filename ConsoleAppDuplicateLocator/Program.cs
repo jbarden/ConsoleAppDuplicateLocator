@@ -7,20 +7,20 @@ namespace ConsoleAppDuplicateLocator;
 
 public partial class Program
 {
-    private static readonly bool RecursiveSubDirectories = true;
+    private const bool RecursiveSubDirectories = true;
 
-    private static void Main(string[] args)
+    private static void Main()
     {
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         StuffWithEvents.FilesEventHandler += FilesService_SelectPotentialDuplicatesEventHandler;
-        var searchParameters = new SearchParameters("c:\\temp", RecursiveSubDirectories, "*.*");
+        var searchParameters = new SearchParameters("F:\\LookAtNow\\f\\", RecursiveSubDirectories, "*.*");
         StuffWithEvents.DoVeryImportantStuff(searchParameters, new FileSystem());
         StuffWithEvents.FilesEventHandler -= FilesService_SelectPotentialDuplicatesEventHandler;
         stopwatch.Stop();
-        Console.WriteLine($"Total run time: {stopwatch.ElapsedMilliseconds} milliseconds");
+        Console.WriteLine($"Total run time: {stopwatch.Elapsed.Minutes} minutes");
 
-        File.AppendAllText(@"c:\temp\stuffWithEvents.txt", $"{DateTime.Now} Total run time: {stopwatch.ElapsedMilliseconds}{Environment.NewLine}");
+        File.AppendAllText(@"c:\temp\dups.txt", $"{Environment.NewLine}{DateTime.Now} Total run time: {stopwatch.Elapsed.Minutes} minutes{Environment.NewLine}");
         _ = Console.ReadKey();
     }
 

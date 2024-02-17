@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Drawing;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Text.Json;
 
 namespace ConsoleAppDuplicateLocator;
 
@@ -13,91 +16,55 @@ internal static class StuffWithEvents
 
     public static void DoVeryImportantStuff(SearchParameters searchParameters, IFileSystem fileSystem)
     {
-        var fileList = new List<FileInfoJB>();
-        RaiseEvent(new FileEventArgs("Getting the file details..."));
-
-        GetFileList(/*searchParameters, fileSystem*/)
-            .ForEach(file => fileList.Add(GetFileInfo(file)));
-
-        RaiseEvent(new FileEventArgs("Grouping the file details..."));
-
-        var duplicatesBySize = fileList
-            .GroupBy(file => FileSize.Create(file.Size, file.Height, file.Width, file.ChecksumHash), new FileSizeEqualityComparer()).Where(files => files.Count() > 1)
-            .ToArray();
-
-        var duplicatesWithDimensions = new List<FileInfoJB>();
-        foreach (var fileGroup in duplicatesBySize)
+        var fileList = new ConcurrentBag<FileInfoJB>();
+        RaiseEvent(new FileEventArgs($"Getting the file details for {searchParameters.SearchFolder} (including subdirectories: {searchParameters.RecursiveSubDirectories})..."));
+        
+        var counter = 0;
+        GetFileList(searchParameters, fileSystem).AsParallel().ForAll(file => fileList.Add(GetFileInfo(new FileInfoJB
         {
-            for (var i = 0; i < fileGroup.Count(); i++)
-            {
-                if (!fileGroup.ElementAt(i).IsImage)
-                {
-                    continue;
-                }
+            FullName = file.FullName,
+            Size = file.Length,
+            Name = file.Name,
+            Extension = file.Extension
+        }, counter++)));
 
-                RaiseEvent(new FileEventArgs($"Getting the file dimension details for {fileGroup.ElementAt(i).Name}..."));
-
-                var fileWithDimensions = GetFileInfo(fileGroup.ElementAt(i));
-                duplicatesWithDimensions.Add(fileWithDimensions);
-            }
-        }
-
-        RaiseEvent(new FileEventArgs("Grouping the file details again - this time with dimensions for the duplicates..."));
-        var duplicatesBySizeAndDimensions = duplicatesWithDimensions
+        RaiseEvent(new FileEventArgs("Grouping the file details - this time with dimensions for the duplicates..."));
+        var duplicatesBySizeAndDimensions = fileList
                                         .GroupBy(file => FileSize.Create(file.Size, file.Height, file.Width, file.ChecksumHash), new FileSizeEqualityComparer())
-                                        .Where(files => files.Count() > 1);
+                                        .Where(files => files.Count() > 1).ToList();
 
         Console.WriteLine(new string('-', 40));
         Console.WriteLine($"files2 count: {fileList.Count}");
-        Console.WriteLine($"Duplicate by size count: {duplicatesBySize.Count()}");
-        Console.WriteLine($"Duplicate by size and dimensions count: {duplicatesBySizeAndDimensions.Count()}");
+        Console.WriteLine($"Duplicate by size and dimensions count: {duplicatesBySizeAndDimensions.Count}");
+        var dl = new List<string>();
+        foreach (var test in duplicatesBySizeAndDimensions.Select(duplicatesBySizeAndDimension => duplicatesBySizeAndDimension.GetEnumerator()))
+        {
+            while (test.MoveNext())
+            {
+                var what = test.Current;
+                var i = what.FullName.LastIndexOf(@"\", StringComparison.Ordinal)+1;
+                var fullname = what.FullName[..i];
+                if (!dl.Contains(fullname))
+                {
+                    dl.Add(fullname);
+                }
+            }
+        }
+
+        File.WriteAllText(@"c:\temp\dups.txt",JsonSerializer.Serialize(dl));
     }
 
-    private static List<FileInfo> GetFileList()
+    private static List<FileInfo> GetFileList(SearchParameters searchParameters, IFileSystem fileSystem)
     {
-        //var files = fileSystem.Directory.GetFiles(searchParameters.SearchFolder, searchParameters.SearchPattern, new EnumerationOptions { IgnoreInaccessible = true, MatchCasing = MatchCasing.CaseInsensitive, RecursiveSubDirectories = searchParameters.RecursiveSubDirectories });
         var fileList = new List<FileInfo>();
-        var files = new List<string>
-        {
-            @"c:\temp\files.txt",
-            @"c:\temp\09_Edp.png",
-            @"c:\temp\10.jpg",
-            @"c:\temp\2018-apollo-intensa-emozione-launch (1).jpg",
-            @"c:\temp\2018-apollo-intensa-emozione-launch.jpg",
-            @"c:\temp\2880-1800-crop-lamborghini-countach-25th-anniversary-c280212122018184243_1.jpg",
-            @"c:\temp\45f69f5a-lamborghini-sian-2.jpg",
-            @"c:\temp\4B1B0F1C-7310-45C7-9246-2AD85B2A9263.jpg",
-            @"c:\temp\4dd8ba95-lamborghini-sian-design.jpg",
-            @"c:\temp\723E62E5-818E-40F7-9E4C-97EC10D61276.jpg",
-            @"c:\temp\72B08573-1A16-44BE-9EA3-1A360E8D54D8.jpg",
-            @"c:\temp\96F1C3FB-F572-4A21-87C5-9ACCBC3BCED5.jpg",
-            @"c:\temp\New Folder\09_Edp.png",
-            @"c:\temp\New Folder\10.jpg",
-            @"c:\temp\New Folder\2018-apollo-intensa-emozione-launch (1).jpg",
-            @"c:\temp\New Folder\2018-apollo-intensa-emozione-launch.jpg",
-            @"c:\temp\New Folder\2880-1800-crop-lamborghini-countach-25th-anniversary-c280212122018184243_1.jpg",
-            @"c:\temp\New Folder\45f69f5a-lamborghini-sian-2.jpg",
-            @"c:\temp\New Folder\4B1B0F1C-7310-45C7-9246-2AD85B2A9263.jpg",
-            @"c:\temp\New Folder\4dd8ba95-lamborghini-sian-design.jpg",
-            @"c:\temp\New Folder\723E62E5-818E-40F7-9E4C-97EC10D61276.jpg",
-            @"c:\temp\New Folder\72B08573-1A16-44BE-9EA3-1A360E8D54D8.jpg",
-            @"c:\temp\New Folder\96F1C3FB-F572-4A21-87C5-9ACCBC3BCED5.jpg",
-            @"c:\temp\New Folder - Copy\09_Edp.png",
-            @"c:\temp\New Folder - Copy\10.jpg",
-            @"c:\temp\New Folder - Copy\2018-apollo-intensa-emozione-launch (1).jpg",
-            @"c:\temp\New Folder - Copy\2018-apollo-intensa-emozione-launch.jpg",
-            @"c:\temp\New Folder - Copy\2880-1800-crop-lamborghini-countach-25th-anniversary-c280212122018184243_1.jpg",
-            @"c:\temp\New Folder - Copy\45f69f5a-lamborghini-sian-2.jpg",
-            @"c:\temp\New Folder - Copy\4B1B0F1C-7310-45C7-9246-2AD85B2A9263.jpg",
-            @"c:\temp\New Folder - Copy\4dd8ba95-lamborghini-sian-design.jpg",
-            @"c:\temp\New Folder - Copy\723E62E5-818E-40F7-9E4C-97EC10D61276.jpg",
-            @"c:\temp\New Folder - Copy\72B08573-1A16-44BE-9EA3-1A360E8D54D8.jpg",
-            @"c:\temp\New Folder - Copy\96F1C3FB-F572-4A21-87C5-9ACCBC3BCED5.jpg",
-        };
-
+        var files = fileSystem.Directory.GetFiles(searchParameters.SearchFolder, searchParameters.SearchPattern, new EnumerationOptions { IgnoreInaccessible = true, MatchCasing = MatchCasing.CaseInsensitive, RecurseSubdirectories = searchParameters.RecursiveSubDirectories}).ToList();
+        var counter = 0;
         foreach (var file in files)
         {
-            RaiseEvent(new FileEventArgs($"Getting the file details for {file}..."));
+            if (counter % 10 == 0)
+            {
+                RaiseEvent(new FileEventArgs($"{counter++} Getting the file details for {file}..."));
+            }
 
             fileList.Add(new FileInfo(file));
         }
@@ -105,20 +72,29 @@ internal static class StuffWithEvents
         return fileList;
     }
 
-    private static FileInfoJB GetFileInfo(FileInfo file) => new() { FullName = file.FullName, Height = 0, Width = 0, Name = file.Name, Size = file.Length, Extension = file.Extension, ChecksumHash = string.Empty };
-
-    private static FileInfoJB GetFileInfo(FileInfoJB file)
+    private static FileInfoJB GetFileInfo(FileInfoJB file, int counter)
     {
-        if (file.IsImage())
+        if(counter%10==0) {
+            RaiseEvent(new FileEventArgs($"{counter} GetFileInfo(FileInfoJB) for {file.FullName}..."));
+        }
+
+        try
         {
+            if (file.IsNotImage)
+            {
+                return file;
+            }
+
             using var img = Image.FromFile(file.FullName);
 
             return new FileInfoJB { FullName = file.FullName, Height = img.Height, Width = img.Width, Name = file.Name, Size = file.Size, Extension = file.Extension, ChecksumHash = string.Empty };
-        }
 
-        return file;
+        }
+        catch
+        {
+            return new FileInfoJB();
+        }
     }
 
-    private static void RaiseEvent(FileEventArgs searchEventArgs) =>
-        FilesEventHandler?.Invoke(null, searchEventArgs);
+    private static void RaiseEvent(EventArgs searchEventArgs) =>FilesEventHandler?.Invoke(null, searchEventArgs);
 }
