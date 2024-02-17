@@ -4,7 +4,14 @@ namespace ConsoleAppDuplicateLocator;
 
 internal class FileInfoJB
 {
-    public string Name { get; set; } = string.Empty;
+    public string Name
+    {
+        get
+        {
+            var index = FullName.LastIndexOf(@"\") + 1;
+            return index >= 1 ? FullName[index..] : string.Empty;
+        }
+    }
 
     public string FullName { get; set; } = string.Empty;
 
@@ -14,9 +21,8 @@ internal class FileInfoJB
 
     public long Size { get; set; }
 
-    public string ChecksumHash { get; set; } = string.Empty;
-
     public string Extension { get; set; } = string.Empty;
+
     public bool IsNotImage => !IsImage;
 
     public bool IsImage => Extension.Contains(".jpg", StringComparison.OrdinalIgnoreCase)

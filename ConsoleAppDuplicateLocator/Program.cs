@@ -2,28 +2,48 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace ConsoleAppDuplicateLocator;
 
 public partial class Program
 {
     private const bool RecursiveSubDirectories = true;
+    private static ILogger<StuffWithEvents> StuffWithEventsLogger = null!;
 
-    private static void Main()
+    static Program()
     {
+        var services = new ServiceCollection();
+        services.AddLogging(logging =>
+        {
+            _ = logging.AddConsole();
+        });
+        var serviceProvider = services.BuildServiceProvider();
+        StuffWithEventsLogger = serviceProvider.GetRequiredService<ILogger<StuffWithEvents>>();
+    }
+
+    private static void Main(string[] args)
+    {
+        var services = new ServiceCollection();
+        services.AddLogging(logging =>
+        {
+            _ = logging.AddConsole();
+        });
+        var serviceProvider = services.BuildServiceProvider();
+        var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        StuffWithEvents.FilesEventHandler += FilesService_SelectPotentialDuplicatesEventHandler;
+        var stuff = new StuffWithEvents(serviceProvider.GetRequiredService<ILogger<StuffWithEvents>>());
+        stuff.FilesEventHandler += FilesService_SelectPotentialDuplicatesEventHandler;
         var searchParameters = new SearchParameters(args[0], RecursiveSubDirectories, "*.*");
-        StuffWithEvents.DoVeryImportantStuff(searchParameters, new FileSystem());
-        StuffWithEvents.FilesEventHandler -= FilesService_SelectPotentialDuplicatesEventHandler;
+        stuff.DoVeryImportantStuff(searchParameters, new FileSystem(), args[1], stopwatch);
+        stuff.FilesEventHandler -= FilesService_SelectPotentialDuplicatesEventHandler;
         stopwatch.Stop();
-        Console.WriteLine($"Total run time: {stopwatch.Elapsed.Minutes} minutes");
-
-        File.AppendAllText(@"c:\temp\dups.txt", $"{Environment.NewLine}{DateTime.Now} Total run time: {stopwatch.Elapsed.Minutes} minutes{Environment.NewLine}");
-        _ = Console.ReadKey();
+        logger.LogInformation("Total run time: {Seconds} Seconds", stopwatch.Elapsed.Seconds);
     }
 
     private static void FilesService_SelectPotentialDuplicatesEventHandler(object? sender, EventArgs eventArgs)
-        => Console.WriteLine(((FileEventArgs)eventArgs).Message);
+        => StuffWithEventsLogger.LogInformation("Message: {message}", ((FileEventArgs)eventArgs).Message);
 }
