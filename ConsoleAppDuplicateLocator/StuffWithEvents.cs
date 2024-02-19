@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
-using System.Threading;
 using Microsoft.Extensions.Logging;
 using SkiaSharp;
 
@@ -23,11 +21,11 @@ internal class StuffWithEvents
 
     public EventHandler? FilesEventHandler;
 
-    public void DoVeryImportantStuff(SearchParameters searchParameters, IFileSystem fileSystem, string logFile, System.Diagnostics.Stopwatch stopwatch)
+    public void DoVeryImportantStuff(SearchParameters searchParameters, IFileSystem fileSystem, string logFile)
     {
         RaiseEvent(new FileEventArgs($"Getting the file details for {searchParameters.SearchFolder} (including subdirectories: {searchParameters.RecursiveSubDirectories})..."));
 
-        var fileList = GetFileList(searchParameters, fileSystem, stopwatch);
+        var fileList = GetFileList(searchParameters, fileSystem);
 
         RaiseEvent(new FileEventArgs("Grouping the file details - this time with dimensions for the duplicates..."));
         var duplicatesBySizeAndDimensions = fileList
@@ -54,8 +52,10 @@ internal class StuffWithEvents
         File.WriteAllText(logFile, JsonSerializer.Serialize(dl));
     }
 
-    private ConcurrentBag<FileInfoJB> GetFileList(SearchParameters searchParameters, IFileSystem fileSystem, System.Diagnostics.Stopwatch stopwatch)
+    private ConcurrentBag<FileInfoJB> GetFileList(SearchParameters searchParameters, IFileSystem fileSystem)
     {
+        var startTime = DateTime.Now;
+        logger.LogInformation("Start Time: {Time}", startTime);
         var fileList = new ConcurrentBag<FileInfoJB>();
         var enumerationOptions = new EnumerationOptions
         {
@@ -65,7 +65,7 @@ internal class StuffWithEvents
         };
         var files = fileSystem.Directory.GetFiles(searchParameters.SearchFolder, searchParameters.SearchPattern, enumerationOptions);
         var counter = 0;
-        foreach (var file in files)
+        foreach (var file in files.AsParallel())
         {
             if (counter % 10 == 0)
             {
@@ -74,7 +74,7 @@ internal class StuffWithEvents
 
             try
             {
-                Interlocked.Add(ref counter, 1);
+                counter++;
                 var extensionIndex = file.LastIndexOf(".") + 1;
                 var extension = file[extensionIndex..];
                 var fileInfo = new FileInfo(file);
@@ -100,7 +100,10 @@ internal class StuffWithEvents
             }
         }
 
-        logger.LogInformation("Run time so far: {Seconds}", stopwatch.Elapsed.Seconds);
+        var elapsed = DateTime.Now - startTime;
+        logger.LogInformation("GetFileList Total run time: {Seconds} Seconds", elapsed.Seconds);
+        logger.LogInformation("Start Time: {Time}", startTime);
+        logger.LogInformation("End Time: {Time}", DateTime.Now);
 
         return fileList;
     }

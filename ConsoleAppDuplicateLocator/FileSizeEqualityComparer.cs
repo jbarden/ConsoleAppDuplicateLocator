@@ -7,7 +7,6 @@ internal class FileSizeEqualityComparer : IEqualityComparer<FileSize>
     /// <summary>
     /// The Equals method has been overridden to perform the equality check currently required.
     /// The equality check is for Height, Width and Length - making this more of an ImageComparer...
-    /// // ToDo - come back to this!!!.
     /// </summary>
     /// <param name="leftFileSize">An instance of the <see cref="FileSize"/> class to compare.</param>
     /// <param name="rightFileSize">The other instance of the <see cref="FileSize"/> class to compare.</param>

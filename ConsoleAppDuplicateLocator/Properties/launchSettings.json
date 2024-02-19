@@ -2,7 +2,7 @@
   "profiles": {
     "ConsoleAppDuplicateLocator": {
       "commandName": "Project",
-      "commandLineArgs": "\"D:\\\\Cars\" \"c:\\\\temp\\\\dups.txt\""
+      "commandLineArgs": "\"D:\\\\New folder\\\\Cars\" \"c:\\\\temp\\\\dups.txt\""
     }
   }
 }
