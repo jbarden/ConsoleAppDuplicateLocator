@@ -36,5 +36,5 @@ internal class FileSize : INotifyPropertyChanged
     /// <param name="width">The width of the file if an image.</param>
     /// <param name="checksumValue">The checksum value for the file.</param>
     /// <returns>A populated instance of <see cref="FileSize"/>.</returns>
-    public static FileSize Create(long fileLength, long height, long width) => new(fileLength, height, width);
+    public static FileSize Create(long fileLength, long height = 0, long width = 0) => new(fileLength, height, width);
 }

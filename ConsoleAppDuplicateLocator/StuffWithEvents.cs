@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using SkiaSharp;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -5,8 +7,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
-using Microsoft.Extensions.Logging;
-using SkiaSharp;
+using System.Text.RegularExpressions;
 
 namespace ConsoleAppDuplicateLocator;
 
@@ -27,29 +28,65 @@ internal class StuffWithEvents
 
         var fileList = GetFileList(searchParameters, fileSystem);
 
-        RaiseEvent(new FileEventArgs("Grouping the file details - this time with dimensions for the duplicates..."));
-        var duplicatesBySizeAndDimensions = fileList
-                                        .GroupBy(file => FileSize.Create(file.Size, file.Height, file.Width), new FileSizeEqualityComparer())
+        RaiseEvent(new FileEventArgs("Grouping the file details - this time only with the size for the duplicates..."));
+        var duplicatesBySize = fileList
+                                        .GroupBy(file => FileSize.Create(file.Size), new FileSizeEqualityComparer())
                                         .Where(files => files.Count() > 1).ToList();
 
-        logger.LogInformation($"files2 count: {fileList.Count}");
-        logger.LogInformation($"Duplicate by size and dimensions count: {duplicatesBySizeAndDimensions.Count}");
-        var dl = new List<string>();
-        foreach (var test in duplicatesBySizeAndDimensions.Select(duplicatesBySizeAndDimension => duplicatesBySizeAndDimension.GetEnumerator()))
+        RaiseEvent(new FileEventArgs($"Getting the file dimensions for potential duplicates by size"));
+
+        var duplicatesWithSizeAndDimensions = GetDimensionsForPotentialDuplicateImages(duplicatesBySize);
+
+        RaiseEvent(new FileEventArgs("Grouping the file details - this time with dimensions for the duplicates..."));
+
+        List< (FileSize FileSize, List<FileInfoJB> Files)> duplicates = new ();
+        foreach (IGrouping<FileSize, FileInfoJB> group in duplicatesWithSizeAndDimensions)
         {
+            var s= group.Key;
+            var groupList = group.ToList();
+
+           var dups=  groupList.GroupBy(file => FileSize.Create(file.Size, file.Height, file.Width), new FileSizeEqualityComparer())
+                                        .Where(files => files.Count() > 1)
+                                        .SelectMany(f=>f.ToList()).ToList();
+            duplicates.Add(new (s, dups));
+        }
+
+        logger.LogInformation($"fileList count: {fileList.Count}");
+        logger.LogInformation($"Duplicate by size: {duplicatesBySize.Count}");
+        logger.LogInformation($"Duplicate by size and dimensions count: {duplicates.Count}");
+        fileSystem.File.Delete(logFile);
+        foreach((FileSize FileSize, List<FileInfoJB> Files) duplicateGroup in duplicates)
+        {
+            logger.LogInformation("File Size: {fileSize}, file count: {count}", duplicateGroup.FileSize.FileLength.ToString(), duplicateGroup.Files.Count());
+            File.AppendAllText(logFile, $"File Size: {duplicateGroup.FileSize.FileLength}. File Count: {duplicateGroup.Files.Count()}");
+            foreach (var file in duplicateGroup.Files)
+            {
+                logger.LogInformation("    File name: {fileName}", file.FullName);
+                File.WriteAllText(logFile, $"\t{file.FullName}");
+            }
+        }
+    }
+
+    private List<IGrouping<FileSize, FileInfoJB>> GetDimensionsForPotentialDuplicateImages(List<IGrouping<FileSize, FileInfoJB>> duplicatesBySize)
+    {
+        foreach(var fileGroup in duplicatesBySize)
+        {
+            var test = fileGroup.GetEnumerator();
             while (test.MoveNext())
             {
-                var what = test.Current;
-                var i = what.FullName.LastIndexOf(@"\", StringComparison.Ordinal) + 1;
-                var fullname = what.FullName[..i];
-                if (!dl.Contains(fullname))
+                var file = test.Current;
+                if(file.IsImage())
                 {
-                    dl.Add(fullname);
+                    using var image = SKImage.FromEncodedData(file.FullName);
+                    using var bm = SKBitmap.FromImage(image);
+
+                    file.Width = bm.Width;
+                    file.Height = bm.Height;
                 }
             }
         }
 
-        File.WriteAllText(logFile, JsonSerializer.Serialize(dl));
+        return duplicatesBySize;
     }
 
     private ConcurrentBag<FileInfoJB> GetFileList(SearchParameters searchParameters, IFileSystem fileSystem)
@@ -63,7 +100,9 @@ internal class StuffWithEvents
             MatchCasing = MatchCasing.CaseInsensitive,
             RecurseSubdirectories = searchParameters.RecursiveSubDirectories
         };
-        var files = fileSystem.Directory.GetFiles(searchParameters.SearchFolder, searchParameters.SearchPattern, enumerationOptions);
+        var files = fileSystem.Directory.GetFiles(searchParameters.SearchFolder, searchParameters.SearchPattern, enumerationOptions).AsParallel();
+        logger.LogInformation("GetFiles Start Time: {Time} {Milliseconds}", startTime, startTime.Millisecond);
+        logger.LogInformation("GetFiles End Time: {Time} {Milliseconds}", DateTime.Now, DateTime.Now.Millisecond);
         var counter = 0;
         foreach (var file in files.AsParallel())
         {
@@ -75,24 +114,9 @@ internal class StuffWithEvents
             try
             {
                 counter++;
-                var extensionIndex = file.LastIndexOf(".") + 1;
-                var extension = file[extensionIndex..];
                 var fileInfo = new FileInfo(file);
-                if (extension.IsNotImage())
-                {
-                    fileList.Add(new FileInfoJB
-                    {
-                        FullName = file,
-                        Size = fileInfo.Length,
-                        Extension = extension
-                    });
-                    continue;
-                }
 
-                using var image = SKImage.FromEncodedData(file);
-                using var bm = SKBitmap.FromImage(image);
-
-                fileList.Add(new FileInfoJB { FullName = file, Height = bm.Height, Width = bm.Width, Size = fileInfo.Length, Extension = extension });
+                fileList.Add(new (fileInfo));
             }
             catch
             {

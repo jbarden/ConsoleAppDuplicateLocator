@@ -17,24 +17,18 @@ public partial class Program
         _ = services.AddLogging(logging => _ = logging.AddConsole());
         var serviceProvider = services.BuildServiceProvider();
         StuffWithEventsLogger = serviceProvider.GetRequiredService<ILogger<StuffWithEvents>>();
-        Console.ReadKey();
     }
 
     private static void Main(string[] args)
     {
-        var services = new ServiceCollection();
-        _ = services.AddLogging(logging => _ = logging.AddConsole());
-        var serviceProvider = services.BuildServiceProvider();
-        var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-
         var startTime = DateTime.Now;
-        var stuff = new StuffWithEvents(serviceProvider.GetRequiredService<ILogger<StuffWithEvents>>());
+        var stuff = new StuffWithEvents(StuffWithEventsLogger);
         stuff.FilesEventHandler += FilesService_SelectPotentialDuplicatesEventHandler;
         var searchParameters = new SearchParameters(args[0], RecursiveSubDirectories, "*.*");
         stuff.DoVeryImportantStuff(searchParameters, new FileSystem(), args[1]);
         stuff.FilesEventHandler -= FilesService_SelectPotentialDuplicatesEventHandler;
         var elapsed = DateTime.Now - startTime;
-        logger.LogInformation("Total run time: {Seconds} Seconds", elapsed.Seconds);
+        StuffWithEventsLogger.LogInformation("Total run time: {Seconds} Seconds", elapsed.Seconds);
     }
 
     private static void FilesService_SelectPotentialDuplicatesEventHandler(object? sender, EventArgs eventArgs)
