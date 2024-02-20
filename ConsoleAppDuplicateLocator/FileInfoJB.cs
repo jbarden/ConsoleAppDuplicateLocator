@@ -16,7 +16,7 @@ internal class FileInfoJB
 
     public FileInfoJB(FileInfo fileInfo)
     {
-        FullName= fileInfo.FullName;
+        FullName = fileInfo.FullName;
         Size = fileInfo.Length;
         Extension = fileInfo.Extension;
     }

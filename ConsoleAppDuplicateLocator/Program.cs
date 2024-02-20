@@ -1,36 +1,39 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace ConsoleAppDuplicateLocator;
 
 public partial class Program
 {
     private const bool RecursiveSubDirectories = true;
-    private static readonly ILogger<StuffWithEvents> StuffWithEventsLogger;
 
     static Program()
     {
-        var services = new ServiceCollection();
-        _ = services.AddLogging(logging => _ = logging.AddConsole());
-        var serviceProvider = services.BuildServiceProvider();
-        StuffWithEventsLogger = serviceProvider.GetRequiredService<ILogger<StuffWithEvents>>();
+        Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.Seq("http://localhost:5341")
+    .CreateLogger();
     }
 
     private static void Main(string[] args)
     {
+        var services = new ServiceCollection();
+        _ = services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.AddConsole();
+            loggingBuilder.AddSeq();
+        });
+        var serviceProvider = services.BuildServiceProvider();
+       var logger = serviceProvider.GetRequiredService<ILogger<SearchForDuplicates>>();
         var startTime = DateTime.Now;
-        var stuff = new StuffWithEvents(StuffWithEventsLogger);
-        stuff.FilesEventHandler += FilesService_SelectPotentialDuplicatesEventHandler;
+        var stuff = new SearchForDuplicates(logger);
         var searchParameters = new SearchParameters(args[0], RecursiveSubDirectories, "*.*");
         stuff.DoVeryImportantStuff(searchParameters, new FileSystem(), args[1]);
-        stuff.FilesEventHandler -= FilesService_SelectPotentialDuplicatesEventHandler;
         var elapsed = DateTime.Now - startTime;
-        StuffWithEventsLogger.LogInformation("Total run time: {Seconds} Seconds", elapsed.Seconds);
+        logger.LogInformation("Total run time: {Seconds} Seconds", elapsed.Seconds);
+        Log.CloseAndFlush();
     }
-
-    private static void FilesService_SelectPotentialDuplicatesEventHandler(object? sender, EventArgs eventArgs)
-        => StuffWithEventsLogger.LogInformation("Message: {message}", ((FileEventArgs)eventArgs).Message);
 }
