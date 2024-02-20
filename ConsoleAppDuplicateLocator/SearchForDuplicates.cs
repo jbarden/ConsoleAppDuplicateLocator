@@ -10,15 +10,8 @@ using SkiaSharp;
 
 namespace ConsoleAppDuplicateLocator;
 
-internal class SearchForDuplicates
+internal class SearchForDuplicates(ILogger<SearchForDuplicates> logger)
 {
-    private ILogger<SearchForDuplicates> logger;
-
-    public SearchForDuplicates(ILogger<SearchForDuplicates> logger)
-    {
-        this.logger = logger;
-    }
-
     public void DoVeryImportantStuff(SearchParameters searchParameters, IFileSystem fileSystem, string logFile)
     {
         Log.Information($"Getting the file details for {searchParameters.SearchFolder} (including subdirectories: {searchParameters.RecursiveSubDirectories})...");
@@ -36,7 +29,7 @@ internal class SearchForDuplicates
 
         Log.Information("Grouping the file details - this time with dimensions for the duplicates...");
 
-        List<(FileSize FileSize, List<FileInfoJB> Files)> duplicates = new();
+        List<(FileSize FileSize, List<FileInfoJB> Files)> duplicates = [];
         foreach (IGrouping<FileSize, FileInfoJB> group in duplicatesWithSizeAndDimensions.AsParallel())
         {
             var s = group.Key;
