@@ -1,0 +1,22 @@
+﻿[
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Empty.txt,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/New Text Document.txt,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Unique text file.txt,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/wallhaven-weeg77 - Copy - Copy.jpg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Another folder/Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Another folder/Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Another folder/wallhaven-weeg77 - Copy - Copy.jpg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/New folder/Empty.txt,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/New folder/Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/New folder/New Text Document.txt,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/New folder/wallhaven-weeg77 - Copy - Copy.jpg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Test Folder/Empty.txt,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Test Folder/New Text Document.txt,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Test Folder/Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/Test Folder/wallhaven-weeg77 - Copy - Copy.jpg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/New folder/Another nested folder/Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/New folder/Another nested folder/Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+  {CurrentDirectory}TestProject1.dll/../../../../TestFiles/New folder/Another nested folder/wallhaven-weeg77 - Copy - Copy.jpg
+]
