@@ -35,14 +35,12 @@ public class DuplicateFileFinderShould
     {
         var duplicateFileList = new DuplicateFileFinder(new FileSystem()).GetInitialFilesMatchingSearchCriteria(new SearchParameters(TestFilesPath, true, "*.*"))
             .GetFileSizes();
-        JsonSerializerOptions options = new()
-        {
-            ReferenceHandler = ReferenceHandler.Preserve,
-            WriteIndented = true
-        };
-        var first = JsonSerializer.Serialize(duplicateFileList.First(), options);
-        OutputHelper.WriteLine(first);
+        JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
+
+        var first = JsonSerializer.Serialize(duplicateFileList.First());
         var all = JsonSerializer.Serialize(duplicateFileList, options);
+
+        OutputHelper.WriteLine(first);
         OutputHelper.WriteLine(all);
         return VerifyJson(JsonSerializer.Serialize(duplicateFileList, options ));
     }

@@ -1,1 +1,162 @@
-﻿
+﻿[
+  {
+    fullName: {ProjectDirectory}TestFiles\Empty.txt,
+    fileName: Empty.txt,
+    fileSize: 0,
+    extension: .txt,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+    fileName: Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+    fileSize: 448508,
+    extension: .jpeg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\New Text Document.txt,
+    fileName: New Text Document.txt,
+    fileSize: 41,
+    extension: .txt,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\Unique text file.txt,
+    fileName: Unique text file.txt,
+    fileSize: 252,
+    extension: .txt,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+    fileName: Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+    fileSize: 450646,
+    extension: .jpg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\wallhaven-weeg77 - Copy - Copy.jpg,
+    fileName: wallhaven-weeg77 - Copy - Copy.jpg,
+    fileSize: 22201,
+    extension: .jpg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\Another folder\Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+    fileName: Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+    fileSize: 448508,
+    extension: .jpeg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\Another folder\Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+    fileName: Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+    fileSize: 450646,
+    extension: .jpg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\Another folder\wallhaven-weeg77 - Copy - Copy.jpg,
+    fileName: wallhaven-weeg77 - Copy - Copy.jpg,
+    fileSize: 22201,
+    extension: .jpg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\New folder\Empty.txt,
+    fileName: Empty.txt,
+    fileSize: 0,
+    extension: .txt,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\New folder\Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+    fileName: Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+    fileSize: 448508,
+    extension: .jpeg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\New folder\New Text Document.txt,
+    fileName: New Text Document.txt,
+    fileSize: 41,
+    extension: .txt,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\New folder\wallhaven-weeg77 - Copy - Copy.jpg,
+    fileName: wallhaven-weeg77 - Copy - Copy.jpg,
+    fileSize: 22201,
+    extension: .jpg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\Test Folder\Empty.txt,
+    fileName: Empty.txt,
+    fileSize: 0,
+    extension: .txt,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\Test Folder\New Text Document.txt,
+    fileName: New Text Document.txt,
+    fileSize: 41,
+    extension: .txt,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\Test Folder\Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+    fileName: Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+    fileSize: 450646,
+    extension: .jpg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\Test Folder\wallhaven-weeg77 - Copy - Copy.jpg,
+    fileName: wallhaven-weeg77 - Copy - Copy.jpg,
+    fileSize: 22201,
+    extension: .jpg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\New folder\Another nested folder\Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+    fileName: Mount Cook and Mount Tasman, New Zealand - Copy - Copy.jpeg,
+    fileSize: 448508,
+    extension: .jpeg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\New folder\Another nested folder\Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+    fileName: Vestrahorn, Iceland, Europe - Copy - Copy.jpg,
+    fileSize: 450646,
+    extension: .jpg,
+    width: 0,
+    height: 0
+  },
+  {
+    fullName: {ProjectDirectory}TestFiles\New folder\Another nested folder\wallhaven-weeg77 - Copy - Copy.jpg,
+    fileName: wallhaven-weeg77 - Copy - Copy.jpg,
+    fileSize: 22201,
+    extension: .jpg,
+    width: 0,
+    height: 0
+  }
+]
