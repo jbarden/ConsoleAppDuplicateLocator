@@ -24,7 +24,7 @@
     <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0" />
 
     <PackageReference Include="SkiaSharp" Version="2.88.8" />
-    <PackageReference Include="System.IO.Abstractions" Version="21.0.29" />
+    <PackageReference Include="System.IO.Abstractions" Version="21.2.1" />
 
   </ItemGroup>
 
